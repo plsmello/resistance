@@ -18,14 +18,19 @@ var qtEspioes = 2;
 
 app.use(express.static(__dirname + '\assets'));
 app.use(express.static(__dirname + '\node_modules'));
+app.use()
 
 app.get('*', function index(req, res){
 	console.log(req.url);
 	fs.readFile(__dirname + req.url, function(err, data){
 		res.writeHead(200);
 		res.end(data);
-	});
+    });
 });
+
+app.post('/registrarJogador', (req, res) => {
+req.body.name
+})
 
 
 
@@ -33,8 +38,8 @@ io.on("connection", function (client) {
     client.on("join", function(name){
     	console.log("Joined: " + name);
         clients[client.id] = name;
-        client.emit("update", "Tâmo junto...");
-        client.broadcast.emit("update", name + " quer encarar.")
+        client.emit("mesa", clients);
+        client.broadcast.emit("mesa", clients);
     });
 
     client.on("send", function(msg){
@@ -45,7 +50,7 @@ io.on("connection", function (client) {
     client.on("disconnect", function(){
     	console.log("Disconnect");
         io.emit("update", clients[client.id] + " arregou!");
-        delete clients[client.id];
+        // delete clients[client.id];
     });
 });
 
