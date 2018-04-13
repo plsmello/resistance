@@ -17,26 +17,8 @@ a{
   color: rgba(82,179,217,0.9);
 }
 
-#sala {
-    background-image: url("/assets/resistance/mesa.png");
-    background-repeat: no-repeat;
-    background-attachment: scroll;
-    width: 100%;
-    height: 100%;
-}
-.espiao{
-    background: rgb(248, 59, 1);
- }
- 
- .aliado{
-    background: rgb(1, 38, 248);
- }
 
- .lider{
-     background: rgb(35, 61, 9);
- }
- 
- .nickname_container {
+.nickname_container {
    background: #F36C44;
    width: 100%;
    height:100%;

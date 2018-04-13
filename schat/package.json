@@ -5,9 +5,6 @@
   "main": "index.js",
   "author": "Daniel Campos <d.ericeira@hotmail.com>",
   "license": "MIT",
-  "scripts": {
-    "start": "node app.js"
-  },
   "repository": {
     "url": "http://",
     "type": "git"
