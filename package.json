@@ -6,7 +6,8 @@
   "author": "Pulu",
   "license": "MIT",
   "scripts": {
-    "start": "node app.js"
+    "start": "node app.js",
+    "start:dev": "nodemon app.js"
   },
   "repository": {
     "url": "http://",
@@ -16,8 +17,11 @@
     "express": "^4.14.0",
     "i": "^0.3.5",
     "jquery": "^3.1.1",
-    "npm": "^3.10.9",
+    "path": "^0.12.7",
     "socket.io-client": "^1.5.1",
     "socketio": "^1.0.0"
+  },
+  "devDependencies": {
+    "nodemon": "^1.17.3"
   }
 }

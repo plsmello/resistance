@@ -1,9 +1,9 @@
-var app = require('express')();
-var fs = require('fs');
-var express = require('express');
-var http = require('http').Server(app);
-var io = require('socket.io')(http);
-var body_parser = require('body-parser');
+const app = require('express')();
+const fs = require('fs');
+const express = require('express');
+const http = require('http').Server(app);
+const io = require('socket.io')(http);
+const path = require('path');
 
 const minJog = 5;
 const maxJog = 10;
@@ -15,7 +15,8 @@ const tamEquipe = [
     [2, 3, 3, 4, 4],
     [3, 4, 4, 5, 5],
     [3, 4, 4, 5, 5],
-    [3, 4, 4, 5, 5]];
+    [3, 4, 4, 5, 5]
+];
 const utilizar = [
     [1],
     [1, 3],
@@ -41,17 +42,9 @@ var votosNao = 0;
 var sucesso = 0;
 var fracasso = 0;
 
-app.use(express.static(__dirname + '\assets'));
-app.use(express.static(__dirname + '\node_modules'));
-//app.use()
-
-app.get('*', function index(req, res) {
-    console.log(req.url);
-    fs.readFile(__dirname + req.url, function (err, data) {
-        res.writeHead(200);
-        res.end(data);
-    });
-});
+app.use(express.static(path.resolve(__dirname, './')));
+app.use('/assets', express.static(path.resolve(__dirname, './assets')));
+app.use('/node_modules', express.static(path.resolve(__dirname, './node_modules')));
 
 app.post('/registrarJogador', (req, res) => {
     console.log(req.body.name);
