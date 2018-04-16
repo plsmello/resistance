@@ -1,4 +1,5 @@
-var socket = io.connect("http://10.100.80.204:3000");
+//var socket = io.connect("http://10.100.80.204:3000");
+var socket = io();
 
 console.log('oi');
 /* fetch({
