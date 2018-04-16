@@ -1,0 +1,49 @@
+table{
+    width: 100%;
+    height: 100%;
+    align-content: center;
+    text-align: center;
+    align-items: center;
+}
+
+html, body {
+    height: 100%;
+}
+.jogador {
+    border-radius: 50%;
+    border-width: 2px;
+    border-style: solid;
+    text-align: center;
+     line-height: 18vh; 
+	/* width and height can be anything, as long as they're equal */
+}
+
+.neutro{
+    background-color: rgb(255, 255, 255);
+    border-color: black;
+}
+.aliado{
+    background-color: rgb(124, 167, 233);
+    border-color: blue;
+}
+.espiao{
+    /* background-color: rgb(175, 56, 35); */
+    border-width: 6px;
+    border-color: rgb(221, 56, 27);
+}
+.escolhido{
+    background-color: rgb(240, 236, 15) !important;
+}
+.lider{
+    background-color: rgb(25, 136, 101);
+}
+.mesa {
+    background-color: rgb(30, 107, 11);
+	border-radius: 10%;
+	width: 90%;
+    height: 60vh;
+    text-align: center;
+    padding: 5px;
+    margin: 5px;
+	/* width and height can be anything, as long as they're equal */
+}

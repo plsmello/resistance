@@ -1,10 +1,13 @@
 {
-  "name": "socketio-simple-chat",
+  "name": "resistince",
   "version": "1.0.0",
-  "description": "A simple NodeJS and Socket.io chat script",
+  "description": "Um jogo maaaaaaaaaaaaaaaaaaaaassa",
   "main": "index.js",
-  "author": "Daniel Campos <d.ericeira@hotmail.com>",
+  "author": "Pulu",
   "license": "MIT",
+  "scripts": {
+    "start": "node app.js"
+  },
   "repository": {
     "url": "http://",
     "type": "git"
