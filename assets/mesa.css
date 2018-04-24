@@ -15,7 +15,7 @@ html, body {
     border-style: solid;
     text-align: center;
      line-height: 18vh; 
-	/* width and height can be anything, as long as they're equal */
+	cursor: pointer;
 }
 
 .neutro{

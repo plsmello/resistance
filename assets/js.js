@@ -1,69 +1,88 @@
-//var socket = io.connect("http://10.100.80.204:3000");
-var socket = io();
-
-console.log('oi');
-/* fetch({
-	json
-})
- */
-$(document).on('click', function (event) {
-	socket.emit('myClick', { id: event.target.id, jogador: localStorage.getItem("RTnick") });
-});
+const socket = io();
+const mesa = Mesa();
+const jogo = Jogo();
+const notificacoes = {
+	mensagens: {
+		selecioneParticipantesMissao: (participantes) => {
+			mesa.mensagem = `Escolha ${participantes} participantes para realizar a missão.`;
+		},
+		aguardeSelecaoDeParticipantes: (nomeDoLider) => {
+			mesa.mensagem = `Aguarde <b>${nomeDoLider}</b> selecionar os participantes para a missão.`
+		}
+	},
+	acoes: {
+		iniciarJogo: () => mesa.acoes = '<button type="button" id="iniciarJogo" >Iniciar</button>',
+		confirmarSelecao: () => mesa.acoes = '<button type="button" id="confirmarSelecao">Confirmar Selecao/button>'
+	}
+}
 
 $(document).ready(function () {
 	var ready = false;
 
-	// $("#submit").submit(function (e) {
-	// 	e.preventDefault();
-	// 	$(document).ready(function () {
-	// 		url = "/mesa.html";
-	// 		$(location).attr("href", url);
-	// 	});
-	// 	var name = $("#nickname").val();
-	// 	var time = new Date();
-	// 	$("#name").html(name);
-	// 	$("#time").html('First login: ' + time.getHours() + ':' + time.getMinutes());
+	entrarNaSala();
+	socket.on('jogadorEntrou', atualizarListaDeJogadoresEmEspera);
 
-	// 	ready = true;
-	// 	console.log(ready);
-	localStorage.setItem("RTtoNaMissao", "nao");
-	localStorage.setItem("RTescolher", 100);
-
-	socket.emit("join", localStorage.getItem("RTnick"));
-
-	//});
-
-	$("#textarea").keypress(function (e) {
-		if (e.which == 13) {
-			var text = $("#textarea").val();
-			$("#textarea").val('');
-			var time = new Date();
-			$(".chat").append('<li class="self"><div class="msg"><span>' + $("#nickname").val() + ':</span><p>' + text + '</p><time>' + time.getHours() + ':' + time.getMinutes() + '</time></div></li>');
-			socket.emit("send", text);
-		}
+	socket.on('jogoAlcancouOMinimoDeJogadores', () => {
+		notificacoes.acoes.iniciarJogo();
+		quandoClicarEmIniciar(() => socket.emit('iniciouJogo'));
 	});
 
-	socket.on("update", function (msg) {
-		if (ready) {
-			$('.chat').append('<li class="info">' + msg + '</li>')
-		}
+	socket.on('iniciouJogo', jogadores => {
+		const souCriadorDaSala = jogadores[0].id === socket.id;
+
+		mesa.mensagem = '';
+		mesa.acoes = '';
+		jogo.jogadores = jogadores.map(jogador => Jogador(jogador.id, jogador.nome, jogador.posicao, jogador.equipe));
+		if (souCriadorDaSala) socket.emit('iniciouNovaRodada');
 	});
 
-	socket.on("chat", function (client, msg) {
-		if (ready) {
-			var time = new Date();
-			$(".chat").append('<li class="other"><div class="msg"><span>' + client + ':</span><p>' + msg + '</p><time>' + time.getHours() + ':' + time.getMinutes() + '</time></div></li>');
+	socket.on('iniciouNovaRodada', ({ numeroDaMissao, quantidadeDeParticipantesParaEscolher, idDoLider }) => {
+		const souOLider = idDoLider === socket.id;
+		const novoLider = jogo.pegarJogadorPorId(idDoLider);
+
+		novoLider.ehLider = true;
+		jogo.iniciarNovaRodada(numeroDaMissao, quantidadeDeParticipantesParaEscolher, idDoLider);
+		if (souOLider) {
+			notificacoes.mensagens.selecioneParticipantesMissao(quantidadeDeParticipantesParaEscolher);
+			quandoClicarEmAlgumJogador(jogador => {
+				if (!jogo.rodadaAtual.haParticipantesSuficientes) {
+					(jogador.escolhidoParaMissao)
+						? removerParticipanteParaMissao(jogador.id)
+						: escolherParticipanteParaMissao(jogador.id)
+				}
+				else if (jogador.escolhidoParaMissao)
+					removerParticipanteParaMissao(jogador.id);
+			});
 		}
+		else
+			notificacoes.mensagens.aguardeSelecaoDeParticipantes(novoLider.nome);
 	});
+
+	socket.on('liderEscolheuParticipante', idDoJogador => {
+		jogo.pegarJogadorPorId(idDoJogador).escolhidoParaMissao = true;
+	});
+
+	socket.on('liderRemoveuParticipante', idDoJogador => {
+		jogo.pegarJogadorPorId(idDoJogador).escolhidoParaMissao = false;
+	});
+
+	socket.on('escolheuParticipantesSuficientes', escolheu => {
+		jogo.rodadaAtual.haParticipantesSuficientes = escolheu;
+	});
+
+	return;
+	//#region 
 
 	function inicia() {
 		socket.emit("inicia");
 	};
 
+
 	socket.on("mesa", function (clients, utilizar) {
 		console.log('cara');
 		console.log(clients);
 		//if (ready) {
+
 		console.log('aqui');
 		$("div").removeClass("espiao");
 		var data_length = clients.length;
@@ -78,7 +97,7 @@ $(document).ready(function () {
 			console.log("setando o i " + i + " de " + clients.length);
 			$('#p' + utilizar[clients.length - 1][i]).html(clients[i]);
 		}
-		//}
+		//
 	});
 
 	socket.on("espioes", function (espioes, fim) {
@@ -195,7 +214,40 @@ $(document).ready(function () {
 		$("div").removeClass("lider");
 		$('#p' + lider).addClass("lider");
 	});
+
 	// socket.on("disconnect", function () {
 	// 	socket.emit("disconnect", clients.indexOf(localStorage.content));
 	// });
+
+	//#endregion
 });
+
+function entrarNaSala() {
+	socket.emit('entrou', localStorage.getItem('RTnick'), 'primeira');
+}
+
+function atualizarListaDeJogadoresEmEspera(jogadores) {
+	mesa.mensagem = jogadores.map(jogador => `<span>${jogador}</span>`).join('</br>');
+}
+
+function quandoClicarEmIniciar(listener) {
+	$('#iniciarJogo').one('click', listener);
+}
+
+function quandoClicarEmAlgumJogador(listener) {
+	jogo.jogadores.forEach(jogador => jogador.elemento.on('click', () => listener(jogador)));
+}
+
+function escolherParticipanteParaMissao(idDoJogador) {
+	jogo.pegarJogadorPorId(idDoJogador).escolhidoParaMissao = true;
+	socket.emit('liderEscolheuParticipante', idDoJogador);
+}
+
+function removerParticipanteParaMissao(idDoJogador) {
+	jogo.pegarJogadorPorId(idDoJogador).escolhidoParaMissao = false;
+	socket.emit('liderRemoveuParticipante', idDoJogador);
+}
+
+function mostrarEspioes() {
+
+}

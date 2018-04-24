@@ -4,24 +4,18 @@ const express = require('express');
 const http = require('http').Server(app);
 const io = require('socket.io')(http);
 const path = require('path');
+const bodyParser = require('body-parser');
 
+const gerenciadorDeSalas = new (require('./server/gerenciador-de-salas'))(io);
+const Sala = require('./server/sala');
+const Jogo = require('./server/jogo');
+const jogoUtils = require('./server/jogo-utils');
+
+// #region
 const minJog = 5;
 const maxJog = 10;
 const proporcaoEspiao = [2, 2, 3, 3, 3, 4];
-const tamEquipe = [
-    [], [], [], [],
-    [2, 3, 2, 3, 3],
-    [2, 3, 4, 3, 4],
-    [2, 3, 3, 4, 4],
-    [3, 4, 4, 5, 5],
-    [3, 4, 4, 5, 5],
-    [3, 4, 4, 5, 5]
-];
 const utilizar = [
-    [1],
-    [1, 3],
-    [1, 3, 5],
-    [1, 3, 5, 7],
     [1, 3, 5, 7, 9],
     [1, 3, 5, 6, 8, 10],
     [1, 3, 4, 5, 6, 8, 10],
@@ -29,6 +23,7 @@ const utilizar = [
     [1, 2, 3, 4, 5, 6, 7, 8, 10],
     [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
 ];
+
 
 var resultadosMissoes = "";
 var votando = false;
@@ -41,35 +36,89 @@ var votosSim = 1;
 var votosNao = 0;
 var sucesso = 0;
 var fracasso = 0;
+//#endregion
 
 app.use(express.static(path.resolve(__dirname, './')));
-app.use('/assets', express.static(path.resolve(__dirname, './assets')));
-app.use('/node_modules', express.static(path.resolve(__dirname, './node_modules')));
+app.use('/static', express.static(path.resolve(__dirname, './assets')));
+app.use('/static', express.static(path.resolve(__dirname, './node_modules')));
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: false }));
 
-app.post('/registrarJogador', (req, res) => {
-    console.log(req.body.name);
-})
+app.post('/entrarNaSala', (req, res) => {
+    let { nome, sala } = req.body;
+
+    if (!nome || !sala) return res.status(500).json({ message: 'Paramêtros nome e sala são obrigatórios' });
+
+});
+
+gerenciadorDeSalas.criarSala('primeira');
+io.on('connection', client => {
+
+});
+
+sala.quandoJogadorEntrar((idDoJogador, nome) => {
+    if (!jogo.estaLotado) {
+        jogo.adicionarJogador(idDoJogador, nome);
+        sala.enviarParaTodos('jogadorEntrou', jogo.jogadores.map(jogador => jogador.nome));
+    }
+    if (jogo.estaProntoParaIniciar) sala.enviarParaJogador('jogoAlcancouOMinimoDeJogadores', true, jogo.primeiroJogadorQueEntrou.id);
+});
+
+sala.quandoJogadorIniciarPartida(() => {
+    jogo.sortearEquipes(jogoUtils.pegarProporcaoDeEspioes(jogo.quantidadeDeJogadores));
+    jogo.setarPosicoesDosJogadores();
+    sala.enviarParaTodos('iniciouJogo', jogo.jogadores);
+});
+
+sala.quandoIniciarNovaRodada(() => {
+    let { idDoLider, quantidadeDeParticipantesParaEscolher, numeroDaMissao } = jogo.iniciarNovaRodada(jogo.sortearLider());
+
+    sala.enviarParaTodos('iniciouNovaRodada', { idDoLider, quantidadeDeParticipantesParaEscolher, numeroDaMissao });
+});
+
+sala.quandoLiderEscolherParticipante(idDoParticipante => {
+    jogo.rodadaAtual.adiconarParticipante(idDoParticipante);
+    sala.enviarParaTodosExceto('liderEscolheuParticipante', idDoParticipante, jogo.lider.id);
+    if (jogo.rodadaAtual.haParticipantesSuficientes)
+        sala.enviarParaJogador('escolheuParticipantesSuficientes', true, jogo.lider.id);
+});
+
+sala.quandoLiderRemoverParticipante(idDoParticipante => {
+    jogo.rodadaAtual.removerParticipante(idDoParticipante);
+    sala.enviarParaTodosExceto('liderRemoveuParticipante', idDoParticipante, jogo.lider.id);
+    sala.enviarParaJogador('escolheuParticipantesSuficientes', false, jogo.lider.id);
+});
+
+http.listen(3000, function () {
+    console.log('Sala criada: aguarde!');
+});
+
+return;
 
 
-io.on("connection", function (client) {
-    client.on("join", function (name) {
+io.on('connection', function (client) {
+    client.on('join', function (nome) {
+        //#region 
         if (clients.length == 10 || qtEspioes > 0) {
             console.log("jogo lotado/iniciado!");
         }
         else {
-            if (clients.indexOf(name) < 0) {
-                console.log("Joined: " + name);
-                clients[clients.length] = name;
+            if (clients.indexOf(nome) < 0) {
+                console.log("Joined: " + nome);
+                clients[clients.length] = nome;
             }
+
             client.emit("mesa", clients, utilizar);
             client.broadcast.emit("mesa", clients, utilizar);
         }
+        //#endregion
     });
 
-    // client.on("send", function(msg){
-    // 	console.log("Message: " + msg);
-    //     client.broadcast.emit("chat", clients[client.id], msg);
-    // });
+    client.on('jogo.iniciar', () => {
+
+    });
+
+    return;
 
     client.on("myClick", function (data) {
         console.log("veio " + data.id);
@@ -145,7 +194,12 @@ io.on("connection", function (client) {
         io.emit("espioes", espioes, true);
     });
 
-    client.on("disconnect", function () {
+    client.on("disconnect", function (client) {
+        console.log(`Desconectado: ${client.id}`);
+        sala = new Jogo(io);
+
+
+        return;
         console.log("Disconnect");
         //io.emit("update", clients[client.id] + " arregou!");
         //clients.splice(0,10);//[clients.indexOf(cli)];
@@ -154,6 +208,3 @@ io.on("connection", function (client) {
 });
 
 
-http.listen(3000, function () {
-    console.log('Sala criada: aguarde!');
-});

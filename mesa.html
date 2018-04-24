@@ -3,12 +3,17 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible"
+          content="ie=edge">
     <!-- <meta name="mobile-web-app-capable" content="yes"> -->
-    <link rel="stylesheet" href="/assets/mesa.css">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
-        crossorigin="anonymous">
+    <link rel="stylesheet"
+          href="/static/mesa.css">
+    <link rel="stylesheet"
+          href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+          integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
+          crossorigin="anonymous">
     <title>A Resis[TI]ncia</title>
 </head>
 
@@ -16,64 +21,84 @@
     <div class="container">
         <div class="row justify-content-center">
             <div class="col-3">
-                <div id="p1" class="jogador neutro">
-                    <span>&nbsp;</span>
+                <div id="jogador1"
+                     class="jogador neutro">
+                    <span id="nome">&nbsp;</span>
                 </div>
             </div>
 
             <div class="col-3">
-                <div id="p2" class="jogador neutro">
-                    <span>&nbsp;</span>
+                <div id="jogador2"
+                     class="jogador neutro">
+                    <span id="nome">&nbsp;</span>
                 </div>
             </div>
         </div>
 
         <div class="row">
             <div class="col-3">
-                <div id="p10" class="jogador esquerda">
-                    <span>&nbsp;</span>
+                <div id="jogador10"
+                     class="jogador esquerda">
+                    <span id="nome">&nbsp;</span>
                 </div>
-                <div id="p9" class="jogador esquerda">
-                    <span>&nbsp;</span>
+                <div id="jogador9"
+                     class="jogador esquerda">
+                    <span id="nome">&nbsp;</span>
                 </div>
-                <div id="p8" class="jogador esquerda">
-                    <span>&nbsp;</span>
+                <div id="jogador8"
+                     class="jogador esquerda">
+                    <span id="nome">&nbsp;</span>
                 </div>
             </div>
 
             <div class="col-6">
-                <div id="mesa" class="mesa">&nbsp;</div>
+                <div id="mesa"
+                     class="mesa">
+                    <div id="mensagem"></div>
+                    <div id="acoes"></div>
+                </div>
             </div>
             <div class="col-3">
-                <div id="p3" class="jogador direita">
-                    <span>&nbsp;</span>
+                <div id="jogador3"
+                     class="jogador direita">
+                    <span id="nome">&nbsp;</span>
                 </div>
-                <div id="p4" class="jogador direita">
-                    <span>&nbsp;</span>
+                <div id="jogador4"
+                     class="jogador direita">
+                    <span id="nome">&nbsp;</span>
                 </div>
-                <div id="p5" class="jogador direita">
-                    <span>&nbsp;</span>
+                <div id="jogador5"
+                     class="jogador direita">
+                    <span id="nome">&nbsp;</span>
                 </div>
             </div>
         </div>
-        
+
         <div class="row justify-content-center">
             <div class="col-3">
-                <div id="p7" class="jogador baixo">
-                    <span>&nbsp;</span>
+                <div id="jogador7"
+                     class="jogador baixo">
+                    <span id="nome">&nbsp;</span>
                 </div>
             </div>
 
             <div class="col-3">
-                <div id="p6" class="jogador baixo">
-                    <span>&nbsp;</span>
+                <div id="jogador6"
+                     class="jogador baixo">
+                    <span id="nome">&nbsp;</span>
                 </div>
             </div>
         </div>
     </div>
-    <script src="node_modules/jquery/dist/jquery.min.js"></script>
-    <script src="node_modules/socket.io-client/dist/socket.io.js"></script>
-    <script src="assets/js.js"></script>
+
+    <script src="static/jquery/dist/jquery.min.js"></script>
+    <script src="static/socket.io-client/dist/socket.io.js"></script>
+    <script src="static/missao.js"></script>
+    <script src="static/rodada.js"></script>
+    <script src="static/mesa.js"></script>
+    <script src="static/jogo.js"></script>
+    <script src="static/jogador.js"></script>
+    <script src="static/js.js"></script>
 </body>
 
 </html>
